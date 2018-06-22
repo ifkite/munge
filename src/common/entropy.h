@@ -32,6 +32,19 @@
 #include <sys/types.h>
 
 
+/*****************************************************************************
+ *  Constants
+ *****************************************************************************/
+
+/*  Number of bytes guaranteed for reading in a single call to entropy_read().
+ */
+#define ENTROPY_NUM_BYTES               256
+
+
+/*****************************************************************************
+ *  Prototypes
+ *****************************************************************************/
+
 int entropy_read (void *buf, size_t buflen, const char **srcp);
 
 int entropy_read_uint (unsigned *up);
