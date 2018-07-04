@@ -56,14 +56,14 @@
  *  Public Functions
  *****************************************************************************/
 
-/*  Read up to [count] bytes of entropy from the kernel's CSPRNG,
+/*  Read up to [buflen] bytes of entropy from the kernel's CSPRNG,
  *    storing the data in [buf].
  *  If [srcp] is not NULL, it will be set to a static string identifying
  *    the entropy source on success or NULL on error.
  *  Return the number of bytes read, or -1 on error (with errno set).
  */
 int
-entropy_read (void *buf, size_t count, const char **srcp)
+entropy_read (void *buf, size_t buflen, const char **srcp)
 {
     size_t       len;
     int          rv;
@@ -80,7 +80,7 @@ entropy_read (void *buf, size_t count, const char **srcp)
      *    will always return as many bytes as requested and not be interrupted
      *    by signals.  No such guarantees apply for larger buffer sizes.
      */
-    len = MIN(256, count);
+    len = MIN(256, buflen);
 retry_getrandom:
     rv = getrandom (buf, len, 0);
     if (rv < 0) {
@@ -98,7 +98,7 @@ retry_getrandom:
     /*
      *  The maximum buffer size permitted is 256 bytes.
      */
-    len = MIN(256, count);
+    len = MIN(256, buflen);
     rv = getentropy (buf, len);
     if (rv < 0) {
         log_msg (LOG_WARNING, "Failed to fill buffer via getentropy(): %s",
@@ -136,7 +136,7 @@ retry_open:
                         ENTROPY_URANDOM_PATH, (st.st_mode & S_IFMT));
             }
             else {
-                len = count;
+                len = buflen;
                 rv = fd_read_n (fd, buf, len);
                 if (rv < 0) {
                     log_msg (LOG_WARNING, "Failed to read from \"%s\": %s",

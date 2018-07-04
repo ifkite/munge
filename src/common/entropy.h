@@ -30,7 +30,7 @@
 #define MUNGE_ENTROPY_H
 
 
-int entropy_read (void *buf, size_t count, const char **srcp);
+int entropy_read (void *buf, size_t buflen, const char **srcp);
 
 
 #endif /* !MUNGE_ENTROPY_H */
