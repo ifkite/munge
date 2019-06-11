@@ -54,6 +54,7 @@ munged_LDADD = \
 	$(LIBBZ2) \
 	$(LIBZ) \
 	$(CRYPTO_LIBS) \
+	-lselinux \
 	# End of munged_LDADD
 
 munged_SOURCES = \

@@ -290,6 +290,7 @@ auth_recv (m_msg_t m, uid_t *uid, gid_t *gid)
 #ifdef AUTH_METHOD_SO_PEERCRED
 
 #include <sys/socket.h>
+#include <selinux/selinux.h>
 
 #ifndef HAVE_SOCKLEN_T
 typedef int socklen_t;                  /* socklen_t is uint32_t in Posix.1g */
@@ -300,6 +301,7 @@ auth_recv (m_msg_t m, uid_t *uid, gid_t *gid)
 {
     struct ucred cred;
     socklen_t len = sizeof (cred);
+    char *selinux_ctx;
 
     if (getsockopt (m->sd, SOL_SOCKET, SO_PEERCRED, &cred, &len) < 0) {
         log_msg (LOG_ERR, "Failed to get peer identity: %s", strerror (errno));
@@ -307,6 +309,14 @@ auth_recv (m_msg_t m, uid_t *uid, gid_t *gid)
     }
     *uid = cred.uid;
     *gid = cred.gid;
+
+    if (getpeercon (m->sd, &selinux_ctx) == 0) {
+        log_msg (LOG_INFO,
+                "getpeercon: type=%s uid=%u gid=%u selinux_ctx=[%s]",
+                (m->type == MUNGE_MSG_ENC_REQ) ? "encode" : "decode",
+                (unsigned int) cred.uid, (unsigned int) cred.gid, selinux_ctx);
+        freecon (selinux_ctx);
+    }
     return (0);
 }
 
